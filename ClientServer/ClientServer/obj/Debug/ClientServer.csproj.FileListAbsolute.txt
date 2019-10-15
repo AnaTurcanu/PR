@@ -1,0 +1,7 @@
+C:\Users\aniso\source\repos\ClientServer\ClientServer\bin\Debug\ClientServer.exe.config
+C:\Users\aniso\source\repos\ClientServer\ClientServer\bin\Debug\ClientServer.exe
+C:\Users\aniso\source\repos\ClientServer\ClientServer\bin\Debug\ClientServer.pdb
+C:\Users\aniso\source\repos\ClientServer\ClientServer\obj\Debug\ClientServer.csprojAssemblyReference.cache
+C:\Users\aniso\source\repos\ClientServer\ClientServer\obj\Debug\ClientServer.csproj.CoreCompileInputs.cache
+C:\Users\aniso\source\repos\ClientServer\ClientServer\obj\Debug\ClientServer.exe
+C:\Users\aniso\source\repos\ClientServer\ClientServer\obj\Debug\ClientServer.pdb
