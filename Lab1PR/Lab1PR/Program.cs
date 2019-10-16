@@ -76,12 +76,16 @@ namespace Lab1PR
         public static List<string> GetColumn(List<TableData> list, string columnName)//method for finding the column by columnName
         {
             List<string> response = new List<string>();//initialize a new list where we'll store
-            Console.WriteLine(list.Count + " " + list[0].GetType());
+            
             list.ForEach(table => {
+                if (table == null)
+                    return;
+
                 if (table.columns.Contains(columnName))//verify if there's a column which contains the string given by the user
                 {
                     var index = table.columns.IndexOf(columnName);//gets the index of that found column
-                    table.data.ForEach(record => {
+                    table.data.ForEach(record =>
+                    {
                         if (record.Count > index)
                         {
                             response.Add(record[index]);
@@ -97,9 +101,6 @@ namespace Lab1PR
         }
     }
 
-
-
-
     class ServerSocket
     {
         class PacketHandler
@@ -111,7 +112,6 @@ namespace Lab1PR
                     Console.WriteLine("Command executed: " + command);
                     string[] args = command.Split(' ');
                     string answer = "Command not valid";
-                    Console.WriteLine(Program.fetchedResult.Count + " " + Program.fetchedResult[0].GetType());
 
                     try
                     {

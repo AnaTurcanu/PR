@@ -5,3 +5,10 @@ C:\Users\aniso\source\repos\ClientServer\ClientServer\obj\Debug\ClientServer.csp
 C:\Users\aniso\source\repos\ClientServer\ClientServer\obj\Debug\ClientServer.csproj.CoreCompileInputs.cache
 C:\Users\aniso\source\repos\ClientServer\ClientServer\obj\Debug\ClientServer.exe
 C:\Users\aniso\source\repos\ClientServer\ClientServer\obj\Debug\ClientServer.pdb
+C:\Users\Cavcaliuc Nina\source\repos\AnaTurcanu\PR\ClientServer\ClientServer\bin\Debug\ClientServer.exe.config
+C:\Users\Cavcaliuc Nina\source\repos\AnaTurcanu\PR\ClientServer\ClientServer\bin\Debug\ClientServer.exe
+C:\Users\Cavcaliuc Nina\source\repos\AnaTurcanu\PR\ClientServer\ClientServer\bin\Debug\ClientServer.pdb
+C:\Users\Cavcaliuc Nina\source\repos\AnaTurcanu\PR\ClientServer\ClientServer\obj\Debug\ClientServer.csprojAssemblyReference.cache
+C:\Users\Cavcaliuc Nina\source\repos\AnaTurcanu\PR\ClientServer\ClientServer\obj\Debug\ClientServer.csproj.CoreCompileInputs.cache
+C:\Users\Cavcaliuc Nina\source\repos\AnaTurcanu\PR\ClientServer\ClientServer\obj\Debug\ClientServer.exe
+C:\Users\Cavcaliuc Nina\source\repos\AnaTurcanu\PR\ClientServer\ClientServer\obj\Debug\ClientServer.pdb
