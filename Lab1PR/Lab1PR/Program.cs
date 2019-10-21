@@ -16,13 +16,14 @@ using Newtonsoft.Json.Linq;
 using System.Diagnostics;
 using System.Xml.Serialization;
 using System.Xml;
+using System.Threading;
 
 
 namespace Lab1PR
 {
-    public class TableData//class for the fetched data, which conceptually has columns and data
+    public class TableData
     {
-        public List<string> columns = new List<string>();//here we create a list for columns of the json, and a list of lists for the data, since we have nodes and keys 
+        public List<string> columns = new List<string>();
 
         public List<List<string>> data = new List<List<string>>(); //data is a list of lists, because it has keys and values for the keys. I could also be implemented as a dictionary
 
@@ -37,14 +38,24 @@ namespace Lab1PR
 
             var mime_type = rawObject["mime_type"];
             var data = rawObject["data"];
-            
+
 
             if (mime_type == null)
             {
                 return returnData = ObjArrayToTD(data.ToString());
             }
-      
-          
+            else
+                if (mime_type.ToString() == "application/xml")
+            {
+                return returnData = GetXMLToTD(data.ToString());
+            }
+            /* else
+             if (mime_type.ToString() == "text/csv")
+             {
+                 return returnData = GetCSVToTD(data.ToString());
+             }*/
+
+
             return null;
         }
 
@@ -68,31 +79,89 @@ namespace Lab1PR
 
             return returnData;
         }
+        private static TableData GetXMLToTD(string rawString)
+        {
+            TableData returnData = new TableData();
+            XmlDocument xml = new XmlDocument();
+            xml.LoadXml(rawString);
+            var nodes = xml.SelectSingleNode("dataset");
+            foreach (XmlNode record in nodes.ChildNodes)
+            {
+                var tempItem = new List<string>();
+                foreach (XmlNode value in record.ChildNodes)
+                {
+                    if (!returnData.columns.Contains(value.Name))
+                    {
+                        returnData.columns.Add(value.Name);
+                    }
+                    tempItem.Add(value.InnerText);
+                }
+                returnData.data.Add(tempItem);
+            }
 
 
-     
+            return returnData;
+        }
+
+        /*private static TableData GetCSVToTD(string rawString)
+        {
+            TableData returnData = new TableData();
+            var array = new List<string>(rawString.Split('\n'));
+            var temp = array[0].Split(',');
+            var temp2 = array[0];
+
+            foreach (var column in array[0].Split(','))
+            {
+                returnData.columns.Add(column);
+
+            }
+            array.RemoveAt(0);
+
+            foreach (var record in array)
+            {
+                var tempItem = new List<string>();
+                foreach (var i in record.Split(','))
+                {
+                    tempItem.Add(i);
+
+                }
+                returnData.data.Add(tempItem);
+            }
+
+            return returnData;
+        }*/
+
+
+
 
 
         public static List<string> GetColumn(List<TableData> list, string columnName)//method for finding the column by columnName
         {
             List<string> response = new List<string>();//initialize a new list where we'll store
-            
-            list.ForEach(table => {
-                if (table == null)
-                    return;
 
-                if (table.columns.Contains(columnName))//verify if there's a column which contains the string given by the user
+            foreach (var table in list)
+            {
+                if (table != null)
                 {
-                    var index = table.columns.IndexOf(columnName);//gets the index of that found column
-                    table.data.ForEach(record =>
+                    if (columnName != null)
                     {
-                        if (record.Count > index)
+                        if (table.columns.Contains(columnName))//verify if there's a column which contains the string given by the user
                         {
-                            response.Add(record[index]);
+                            var index = table.columns.IndexOf(columnName);//gets the index of that found column
+
+                            foreach (var record in table.data)
+                            {
+                                if (record.Count > index)
+                                {
+                                    response.Add(record[index]);
+                                }
+                            }
                         }
-                    });
+                    }
                 }
-            });
+            }
+
+
             if (response.Count == 0)
             {
                 response.Add("Column does not exist");
@@ -107,28 +176,100 @@ namespace Lab1PR
         {
             static class ProcessCommand
             {
-                public static byte[] Execute(string command)
+                public static byte[] Execute(string commandStr)
                 {
-                    Console.WriteLine("Command executed: " + command);
-                    string[] args = command.Split(' ');
+                    Console.WriteLine("Command received: " + commandStr);
+
+                    string[] args = commandStr.Split(' ');
+                    string command = args[0];
                     string answer = "Command not valid";
+                    string[] columnNames;
+                    List<string> columns = new List<string>();
+                    Console.WriteLine(args.Length);
 
-                    try
+                    switch (command)
                     {
-                        if (args[0] == "returncolumn")
-                        {
+                        case "returncolumn":
+                            try
+                            {
+                                string columnParams = commandStr.Substring(commandStr.IndexOf(' ')).Trim();
 
-                            List<string> res = Helpers.GetColumn(Program.fetchedResult, args[1]);
-                            answer = JArray.FromObject(res).ToString();
-                        }
+                                
+
+                                if (columnParams == "all" || columnParams == "*")
+                                {
+                                    
+                                    foreach (var table in Program.fetchedResult)
+                                    {
+                                        if (table != null)
+                                        {
+                                            foreach (var column in table.columns)
+                                            {
+                                                if (column != null)
+                                                    columns.Add(column);
+                                            }
+                                        }
+
+                                    }
+                                    columnNames = columns.Distinct<string>().ToArray();
+                                }
+                                else
+                                    columnNames = columnParams.Split(',');
+
+                                //Dictionary<string, List<string>> result = new Dictionary<string, List<string>>();
+                                List<List<string>> result = new List<List<string>>();
+
+                                foreach (string columnName in columnNames)
+                                {
+                                    List<string> res = Helpers.GetColumn(Program.fetchedResult, columnName.Trim());
+                                    result.Add(res);
+                                }
+
+
+                                answer = JArray.FromObject(result).ToString();
+
+
+
+
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine(e.Message + " \n " + e.StackTrace);
+                                answer = "Try again. An  internal error occured.";
+                            }
+                            break;
+                        case "getcolumns":
+                            
+                                foreach (var table in Program.fetchedResult)
+                                {
+                                    if (table != null)
+                                    {
+                                        foreach (var column in table.columns)
+                                        {
+                                            if (column != null)
+                                                columns.Add(column);
+                                        }
+                                    }
+
+                                }
+                            columns = columns.Distinct<string>().ToList<string>();
+                                answer = String.Empty;
+                            foreach (var item in columns)
+                            {
+                                answer = answer + ", "+item;
+                            }
+                            answer = String.Format("\nColumns:  {0}\n",answer.Substring(2));
+                                break;
+                        default:
+                            break;
                     }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e.Message + " asd " + e.StackTrace);
-                        answer = "Try again. An  internal error occured.";
-                    }
+
+
+
                     byte[] packet = new byte[answer.Length + 2]; //2 bytes for the package length
+
                     byte[] packetLength = BitConverter.GetBytes((ushort)answer.Length);
+
                     Array.Copy(packetLength, packet, 2);
                     Array.Copy(Encoding.ASCII.GetBytes(answer), 0, packet, 2, answer.Length);
 
@@ -149,9 +290,9 @@ namespace Lab1PR
         }
         class ConnectionInfo
         {
-            public byte[] data = new byte[1024];
+            public byte[] data = new byte[8192];
             public Socket socket;
-            public const int BUFF_SIZE = 1024;
+            public const int BUFF_SIZE = 8192;
         }
 
 
@@ -261,6 +402,8 @@ namespace Lab1PR
                     foreach (var item in linkNodes.Children())
                     {
                         SendRequestWithNewThread(item.First.ToString(), access_token);
+                        //ThreadPool.QueueUserWorkItem(state => SendRequest(item.First.ToString(), access_token));
+
                     }
                 }
                 if (jsonResponse["data"] != null)
@@ -268,8 +411,11 @@ namespace Lab1PR
                     fetchedResult.Add(Helpers.GetTableData(jsonResponse));
                     finalResult.Add(jsonResponse["data"].ToString());
                 }
+
             }
         }
+
+
 
         public static void SendRequestWithNewThread(string route, string access_token)
         {
@@ -281,17 +427,18 @@ namespace Lab1PR
                 if (isDone == 0)
                 {
                     timer.Stop();
-                    printResponse();
+                    outputResponse();
                     //startServer();
                 }
             });
             thread.Start();
         }
 
-        public static void printResponse()
+
+        public static void outputResponse()
         {
             Console.WriteLine("Done!!!");
-            finalResult.ForEach(x => Console.WriteLine(x + "\n******************************"));
+            finalResult.ForEach(x => Console.WriteLine(x + "\n******************************************************************************"));
             Console.Write("Process done in " + timer.Elapsed.Seconds + " seconds.");
         }
 
@@ -317,8 +464,10 @@ namespace Lab1PR
                 timer.Start();
                 SendRequest(homeURL, access_token);
 
-                // socket.Execute("selectcolumn");
+
             }
+            //timer.Stop();
+            //outputResponse();
 
             Console.ReadLine();
             startServer();
@@ -490,14 +639,11 @@ namespace Lab1PR
                 /*if (nodes[key] == "/route/4")
                 {
                     string newURL = nodes[key];
-
                     Console.WriteLine(sURL = String.Format("http://localhost:5000{0}", newURL));
                     wrGETURL = WebRequest.Create(sURL);
                     wrGETURL.Headers.Add("X-Access-Token", accessToken);
                     objStream = wrGETURL.GetResponse().GetResponseStream();
-
                     objReader = new StreamReader(objStream);
-
                     sLine = objReader.ReadLine();
                     Dictionary<string, string> subnodes = new Dictionary<string, string>();
                     rootObject = JObject.Parse(sLine);
