@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using System.Net;
 using System.Net.Sockets;
@@ -39,7 +39,7 @@ namespace Client
     {
         private Socket clientSocket;
         private byte[] buffer;
-        private const int BUFF_SIZE = 1024;
+        private const int BUFF_SIZE = 8192;
         private string ip;
         private int port;
 
@@ -91,7 +91,7 @@ namespace Client
             }
             else
             {
-                Console.WriteLine("Client Socket could not connect, trying to reconnect in 5 seconds");
+                Console.WriteLine("Trying to connect");
                 Thread.Sleep(5000);
                 this.Reconnect();
             }
